@@ -33,7 +33,7 @@
 {
     id sessionManagerPartialMock = [OCMockObject partialMockForObject:[PYOHTTPSessionManager manager]];
     
-    NSString *URLstring = @"test";
+    NSString *URLString = @"test";
     NSDictionary *parameters = nil;
     
     void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {};
@@ -46,9 +46,9 @@
         block(nil, error);
     };
     
-    [[sessionManagerPartialMock expect] GET:URLstring parameters:parameters success:successBlock failure:failureBlock];
+    [[sessionManagerPartialMock expect] GET:URLString parameters:parameters success:successBlock failure:failureBlock];
     
-    [sessionManagerPartialMock GET:URLstring parameters:parameters block:block];
+    [sessionManagerPartialMock GET:URLString parameters:parameters block:block];
     
     [sessionManagerPartialMock verify];
     [sessionManagerPartialMock stopMocking];
