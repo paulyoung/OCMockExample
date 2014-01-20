@@ -19,9 +19,9 @@
                         block:(void (^)(id responseObject, NSError *error))block
 {
     return [self GET:URLString parameters:parameters success:^(NSURLSessionDataTask * __unused task, id responseObject) {
-        block(responseObject, nil);
+//        block(responseObject, nil);
     } failure:^(NSURLSessionDataTask * __unused task, NSError *error) {
-        block(nil, error);
+//        block(nil, error);
     }];
 }
 

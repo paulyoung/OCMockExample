@@ -29,24 +29,67 @@
     [super tearDown];
 }
 
-- (void)testWithBlockVariables
+//- (void)testWithBlockVariables
+//{
+//    id sessionManagerPartialMock = [OCMockObject partialMockForObject:[PYOHTTPSessionManager manager]];
+//    
+//    NSString *URLString = @"test";
+//    NSDictionary *parameters = nil;
+//    
+//    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {};
+//    
+//    void (^successBlock)(NSURLSessionDataTask *, id) = ^(NSURLSessionDataTask * __unused task, id responseObject) {
+//        block(responseObject, nil);
+//    };
+//    
+//    void (^failureBlock)(NSURLSessionDataTask *, NSError *) = ^(NSURLSessionDataTask * __unused task, NSError *error) {
+//        block(nil, error);
+//    };
+//    
+//    [[sessionManagerPartialMock expect] GET:URLString parameters:parameters success:successBlock failure:failureBlock];
+//    
+//    [sessionManagerPartialMock GET:URLString parameters:parameters block:block];
+//    
+//    [sessionManagerPartialMock verify];
+//    [sessionManagerPartialMock stopMocking];
+//}
+//
+//- (void)testWithOCArgIsNotNil
+//{
+//    id sessionManagerPartialMock = [OCMockObject partialMockForObject:[PYOHTTPSessionManager manager]];
+//    
+//    NSString *URLString = @"test";
+//    NSDictionary *parameters = nil;
+//    
+//    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {};
+//    
+//    [[sessionManagerPartialMock expect] GET:URLString parameters:parameters success:[OCMArg isNotNil] failure:[OCMArg isNotNil]];
+//    
+//    [sessionManagerPartialMock GET:URLString parameters:parameters block:block];
+//    
+//    [sessionManagerPartialMock verify];
+//    [sessionManagerPartialMock stopMocking];
+//}
+
+- (void)testSuccessWithBlockStub
 {
     id sessionManagerPartialMock = [OCMockObject partialMockForObject:[PYOHTTPSessionManager manager]];
     
     NSString *URLString = @"test";
     NSDictionary *parameters = nil;
     
-    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {};
+    NSString *responseStub = @"success";
     
-    void (^successBlock)(NSURLSessionDataTask *, id) = ^(NSURLSessionDataTask * __unused task, id responseObject) {
-        block(responseObject, nil);
+    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {
+        XCTAssertNil(error, @"");
+        XCTAssertEqualObjects(responseObject, responseStub, @"");
     };
     
-    void (^failureBlock)(NSURLSessionDataTask *, NSError *) = ^(NSURLSessionDataTask * __unused task, NSError *error) {
-        block(nil, error);
-    };
-    
-    [[sessionManagerPartialMock expect] GET:URLString parameters:parameters success:successBlock failure:failureBlock];
+    [[[sessionManagerPartialMock expect] andDo:^(NSInvocation *invocation) {
+        void (^successBlock)(NSURLSessionDataTask *, id);
+        [invocation getArgument:&successBlock atIndex:4];
+        successBlock(nil, responseStub);
+    }] GET:URLString parameters:parameters success:[OCMArg isNotNil] failure:[OCMArg isNotNil]];
     
     [sessionManagerPartialMock GET:URLString parameters:parameters block:block];
     
@@ -54,21 +97,74 @@
     [sessionManagerPartialMock stopMocking];
 }
 
-- (void)testWithOCArgIsNotNil
+- (void)testFailureWithBlockStub
 {
     id sessionManagerPartialMock = [OCMockObject partialMockForObject:[PYOHTTPSessionManager manager]];
     
-    NSString *URLstring = @"test";
+    NSString *URLString = @"test";
     NSDictionary *parameters = nil;
     
-    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {};
+    id errorMock = [OCMockObject mockForClass:[NSError class]];
     
-    [[sessionManagerPartialMock expect] GET:URLstring parameters:parameters success:[OCMArg isNotNil] failure:[OCMArg isNotNil]];
+    void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {
+        XCTAssertNil(responseObject, @"");
+        XCTAssertEqualObjects(error, errorMock, @"");
+    };
     
-    [sessionManagerPartialMock GET:URLstring parameters:parameters block:block];
+    [[[sessionManagerPartialMock expect] andDo:^(NSInvocation *invocation) {
+        void (^failureBlock)(NSURLSessionDataTask *, NSError *);
+        [invocation getArgument:&failureBlock atIndex:5];
+        failureBlock(nil, errorMock);
+    }] GET:URLString parameters:parameters success:[OCMArg isNotNil] failure:[OCMArg isNotNil]];
+    
+    [sessionManagerPartialMock GET:URLString parameters:parameters block:block];
     
     [sessionManagerPartialMock verify];
     [sessionManagerPartialMock stopMocking];
 }
 
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
