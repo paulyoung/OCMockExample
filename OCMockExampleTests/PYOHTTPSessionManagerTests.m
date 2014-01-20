@@ -79,10 +79,12 @@
     NSDictionary *parameters = nil;
     
     NSString *responseStub = @"success";
+    __block BOOL blockCalled = NO;
     
     void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {
         XCTAssertNil(error, @"");
         XCTAssertEqualObjects(responseObject, responseStub, @"");
+        blockCalled = YES;
     };
     
     [[[sessionManagerPartialMock expect] andDo:^(NSInvocation *invocation) {
@@ -95,6 +97,8 @@
     
     [sessionManagerPartialMock verify];
     [sessionManagerPartialMock stopMocking];
+    
+    XCTAssert(blockCalled, @"");
 }
 
 - (void)testFailureWithBlockStub
@@ -105,10 +109,12 @@
     NSDictionary *parameters = nil;
     
     id errorMock = [OCMockObject mockForClass:[NSError class]];
+    __block BOOL blockCalled = NO;
     
     void (^block)(id, NSError *) = ^(id responseObject, NSError *error) {
         XCTAssertNil(responseObject, @"");
         XCTAssertEqualObjects(error, errorMock, @"");
+        blockCalled = YES;
     };
     
     [[[sessionManagerPartialMock expect] andDo:^(NSInvocation *invocation) {
@@ -121,6 +127,8 @@
     
     [sessionManagerPartialMock verify];
     [sessionManagerPartialMock stopMocking];
+    
+    XCTAssert(blockCalled, @"");
 }
 
 @end
